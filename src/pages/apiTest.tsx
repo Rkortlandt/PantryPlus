@@ -26,14 +26,6 @@ export default function ApiTest() {
   }, [families]);
   return (
     <>
-      <select className="select w-full max-w-xs">
-  <option disabled selected>Pick your favorite Simpson</option>
-  <option>Homer</option>
-  <option>Marge</option>
-  <option>Bart</option>
-  <option>Lisa</option>
-  <option>Maggie</option>
-</select>
       <p>Logged in {isLoggedIn() ? 'true' : 'false'}</p>
       <button
         onClick={() => {
