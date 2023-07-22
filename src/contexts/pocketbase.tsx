@@ -2,8 +2,8 @@ import React, { createContext, useContext, useState } from 'react';
 import PocketBase from 'pocketbase';
 
 // Create a new instance of PocketBase
-const pb = new PocketBase('http://127.0.0.1:8090');
-
+export const pb = new PocketBase('http://127.0.0.1:8090');
+export default pb;
 export const addUser = async (
   username: string,
   email: string,
@@ -45,33 +45,36 @@ export const addCoordinator = async (
   };
 
   try {
-    const record = await pb.collection('coordinators').create(data);
+    const user = await pb.collection('coordinators').create(data);
     try {
-      const authData = await pb.collection('coordinators').authWithPassword(data.email, data.password);
+      await pb.collection('coordinators').authWithPassword(data.email, data.password);
       try {
         const familyData = await pb
           .collection('familys')
-          .create({ familyName, familyMembers: [], familyCoordinator: pb.authStore.model?.id });
+          .create({ familyName, familyMembers: [], familyCoordinator: user.id });
+        try {
+          await pb.collection('coordinators').update(`${user.id}`, { family: `${familyData.id}` });
+        } catch (error) {
+          return { error: error, message: 'failed to update link to family' };
+        }
       } catch (error) {
-        return error;
+        return { error: error, message: 'failed to create family' };
       }
     } catch (error) {
-      return error;
+      return { error: error, message: 'failed to authenticate' };
     }
   } catch (error) {
-    return error;
+    return { error: error, message: 'failed to create a new account' };
   }
 };
 
-export const login = async (usernameEmail: string, password: string) => {
+export const hasFamily = async () => {
+  if (!pb.authStore.model) return false;
   try {
-    const authData = await pb.collection('users').authWithPassword(usernameEmail, password);
+    await pb.collection('users').getOne(pb.authStore.model?.id);
+    return true;
   } catch {
-    try {
-      const authData = await pb.collection('coordinators').authWithPassword(usernameEmail, password);
-    } catch (error) {
-      return error;
-    }
+    return false;
   }
 };
 

@@ -10,7 +10,9 @@ export default function ApiTest() {
       collectionId: '',
       collectionName: '',
       created: '',
-      familyCoordinator: '',
+      familyCoordinator: {
+        username: '',
+      },
       familyMembers: '',
       familyName: '',
       id: '',
@@ -20,10 +22,18 @@ export default function ApiTest() {
   ]);
 
   useEffect(() => {
-    console.log(userRequests);
-  }, [userRequests]);
+    console.log(families);
+  }, [families]);
   return (
     <>
+      <select className="select w-full max-w-xs">
+  <option disabled selected>Pick your favorite Simpson</option>
+  <option>Homer</option>
+  <option>Marge</option>
+  <option>Bart</option>
+  <option>Lisa</option>
+  <option>Maggie</option>
+</select>
       <p>Logged in {isLoggedIn() ? 'true' : 'false'}</p>
       <button
         onClick={() => {
@@ -104,7 +114,7 @@ export default function ApiTest() {
             <br />
             creation: {family.created}
             <br />
-            coordinator: {family.familyCoordinator}
+            coordinator: {family.familyCoordinator.username}
             <br />
             members: {family.familyMembers}
             <br />

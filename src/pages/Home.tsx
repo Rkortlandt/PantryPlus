@@ -4,10 +4,11 @@ import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Loading from './Loading';
 import Footer from './Footer';
 import { logout } from '../contexts/pocketbase';
+import { LoginState, useGetLoginState } from '../hooks/useGetLoginState';
 function Home() {
   //handle lightmode button click
   const [lightMode, setLightMode] = useState(true);
-
+  const loginState: LoginState = useGetLoginState();
   const handleLightMode = () => {
     setLightMode(!lightMode);
     if (lightMode) {
@@ -48,7 +49,7 @@ function Home() {
             </button>
           </div>
           {/* Nav (Large Screens) */}
-          <Navbar handleLightMode={handleLightMode} lightMode={lightMode} />
+          <Navbar handleLightMode={handleLightMode} lightMode={lightMode} loginState={loginState} />
           {/* Hero Element */}
 
           <Routes>
@@ -111,7 +112,7 @@ function Home() {
 
 export default Home;
 
-function Navbar(props: any) {
+function Navbar(props: { handleLightMode: () => void; lightMode: boolean; loginState: LoginState }) {
   return (
     <>
       <div className="navbar max-h-6 sticky left-0 top-0 hidden md:flex shadow-xl">
@@ -198,9 +199,14 @@ function Navbar(props: any) {
                 <button className=" btn btn-md btn-square place-content-center btn-ghost">
                   <span className="material-symbols-outlined">settings</span>
                 </button>
-                <button className=" btn btn-md btn-square place-content-center btn-ghost">
-                  <span className="material-symbols-outlined">person</span>
-                </button>
+                <Link
+                  to={props.loginState === 'users' ? '/familydashboard' : '/home'}
+                  className=" btn btn-md btn-square place-content-center btn-ghost"
+                >
+                  <button className=" btn btn-md btn-square place-content-center btn-ghost">
+                    <span className="material-symbols-outlined">person</span>
+                  </button>
+                </Link>
                 <button
                   className=" btn btn-md btn-square place-content-center btn-ghost"
                   onClick={props.handleLightMode}

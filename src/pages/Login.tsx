@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Toast from '../components/toast';
-import { login } from '../contexts/pocketbase';
+import { useUserLogin, useCoordinatorLogin } from '../hooks/useLogin';
 
 export default function Login() {
   const [usernameEmail, setUsernameEmail] = useState('');
@@ -10,7 +10,14 @@ export default function Login() {
   const [isUsernameEmailValid, setIsUsernameEmailValid] = useState(true);
   const [showToast, setShowToast] = useState(false);
   const navigate = useNavigate();
-
+  const { mutate: loginUser, isLoading, isError, isSuccess, error } = useUserLogin();
+  const {
+    mutate: loginCord,
+    isLoading: isLoadingCord,
+    isError: isErrorCord,
+    isSuccess: isSuccessCord,
+    error: errorCord,
+  } = useCoordinatorLogin();
   useEffect(() => {
     if (showToast) {
       const timer = setTimeout(() => {
@@ -22,17 +29,17 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const error = await login(usernameEmail, password);
-
-    if (error) {
-      console.log(error);
-      setIsPasswordValid(false);
-      setIsUsernameEmailValid(false);
-      setShowToast(true);
-    } else {
-      navigate('/home');
-    }
+    const usernameEmailAndPassword = { usernameEmail, password };
+    loginUser(usernameEmailAndPassword);
+    loginCord(usernameEmailAndPassword);
   };
+  if (isErrorCord && isError) {
+    setShowToast(true);
+    console.log(error, errorCord);
+  }
+  if (isSuccess || isSuccessCord) {
+    navigate('/home');
+  }
 
   return (
     <div className="flex flex-col items-center justify-center h-screen">
@@ -61,7 +68,7 @@ export default function Login() {
             }}
           />
           <button type="submit" className="btn btn-primary w-full p-2 my-2">
-            Login
+            {isLoading || isLoadingCord ? <span className="loading loading-spinner"></span> : 'Login'}
           </button>
         </form>
         Don't have an account?{' '}
