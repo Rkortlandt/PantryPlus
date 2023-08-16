@@ -1,7 +1,6 @@
-import { useState } from 'react';
 import pb from '../contexts/pocketbase';
 import { useQuery } from '@tanstack/react-query';
-import { IFamily, IFamilyRelationship } from '../pages/FamilyDashboard';
+import { IFamily, IFamilyRelationship,  } from '../pages/FamilyDashboard';
 
 export interface familyRelationship {
   collectionId: string;
@@ -17,7 +16,7 @@ export interface familyRelationship {
 async function getFamily (familyId: string) {
   if (familyId) {
     const family: IFamily = await pb.collection('families').getOne(familyId, {
-      expand: 'familyCoordinator, familyMembers,user'
+      expand: 'familyCoordinator, familyMembers.user'
     });
     return family;
   } else {
@@ -42,6 +41,7 @@ const { data: family, isSuccess: isFamilyQuerySuccess, isError: isFamilyQueryErr
 
 
 console.log( { family, familyRelationship } );
+console.log( family, familyRelationship, isRelationQuerySuccess, isFamilyQuerySuccess, isRelationQueryError, isFamilyQueryError);
 return { family, familyRelationship, isRelationQuerySuccess, isFamilyQuerySuccess, isRelationQueryError, isFamilyQueryError};
 
 }

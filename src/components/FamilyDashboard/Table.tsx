@@ -1,6 +1,15 @@
-import { IFamily, IUser } from "../../pages/FamilyDashboard";
+import { IFamily, IUser, IFamilyMember, IFamilyCoordinator } from "../../pages/FamilyDashboard";
 
-const Table: React.FC<{familyCoordinator: IUser, userFamily: IFamily, model: IUser}> = ({familyCoordinator, userFamily, model}) => {
+const Table: React.FC<{familyCoordinator: IFamilyCoordinator, familyMembers: IFamilyMember[], model: IUser}> = ({familyCoordinator, familyMembers, model}) => {
+  const roleOrder = {
+    'manager': 0,
+    'requester': 1,
+    'viewer': 2
+  }
+  familyMembers = familyMembers.sort((a, b) => {
+    return roleOrder[a.role] - roleOrder[b.role]
+  })
+  console.log(familyMembers)
   return (
     <table className="table w-full bg-base-100">
       {/* head */}
@@ -24,55 +33,23 @@ const Table: React.FC<{familyCoordinator: IUser, userFamily: IFamily, model: IUs
             <span className="badge-primary badge">Coordinator</span>
           </td>
         </tr>
-
-        {userFamily.expand.familyManagers !== undefined &&
-          userFamily.expand.familyManagers.map((manager) => (
-            <tr
-              className={
-                manager.username === model.username
-                  ? 'bg-base-300 border-base-100 border-4 items-center'
-                  : 'items-center'
-              }
-            >
-              <td>{manager.name !== '' ? manager.name : manager.username}</td>
-              <td>
-                {manager.username === model.username ? <span className="badge-accent badge mr-2">You</span> : <></>}
-                <span className="badge-secondary badge">Manager</span>
+        {familyMembers.length > 0 && familyMembers.map((member) => {
+          return (
+            <tr className='items-center'>
+              <td className={`${member.user === model.id ? 'bg-neutral' : ''}`}>
+                {member.expand.user.name != '' ? member.expand.user.name : member.expand.user.username}
+                {member.user === model.id ? (
+                  <span className="badge-accent badge ml-2">You</span>
+                ) : (
+                  <></>
+                )}
+              </td>
+              <td className={`${member.user === model.id ? 'bg-neutral' : ''}`}>
+                <span className={`badge-secondary badge`}>{member.role}</span>
               </td>
             </tr>
-          ))}
-        {userFamily.expand.familyRequesters !== undefined &&
-          userFamily.expand.familyRequesters.map((requester) => (
-            <tr
-              className={
-                requester.username === model.username
-                  ? 'bg-base-300 border-base-100 border-4 items-center'
-                  : 'items-center'
-              }
-            >
-              <td>{requester.name != '' ? requester.name : requester.username}</td>
-              <td>
-                {requester.username === model.username ? <span className="badge-accent badge mr-2">You</span> : <></>}
-                <span className=" badge-accent badge">Requester</span>
-              </td>
-            </tr>
-          ))}
-        {userFamily.expand.familyViewers !== undefined &&
-          userFamily.expand.familyViewers.map((viewer) => (
-            <tr
-              className={
-                viewer.username === model.username
-                  ? 'bg-base-300 border-base-100 border-4 items-center'
-                  : 'items-center'
-              }
-            >
-              <td>{viewer.name != '' ? viewer.name : viewer.username}</td>
-              <td>
-                {viewer.username === model.username ? <span className="badge-accent badge mr-2">You</span> : <></>}
-                <span className="badge">Viewer</span>
-              </td>
-            </tr>
-          ))}
+          );
+        })}    
       </tbody>
     </table>
   );
