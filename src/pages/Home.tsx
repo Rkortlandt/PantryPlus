@@ -4,6 +4,7 @@ import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Loading from './Loading';
 import Footer from './Footer';
 import { logout } from '../contexts/pocketbase';
+import { createFamilyRequest } from '../contexts/pocketbase';
 import { LoginState, useGetLoginState } from '../hooks/useGetLoginState';
 function Home() {
   //handle lightmode button click
@@ -18,7 +19,7 @@ function Home() {
     }
   };
   return (
-    <>
+    <div className="h-full w-full">
       <div className="drawer">
         <input id="my-drawer" type="checkbox" className="drawer-toggle" />
         <div className="drawer-content">
@@ -30,7 +31,9 @@ function Home() {
               <span className="material-symbols-outlined">add</span>
             </label>
             <button className="join-item btn btn-md">
+	      <Link to="/settings">
               <span className="material-symbols-outlined">settings</span>
+	      </Link>
             </button>
             <button className="join-item btn btn-md">
               <span className="material-symbols-outlined">person</span>
@@ -51,13 +54,16 @@ function Home() {
           {/* Nav (Large Screens) */}
           <Navbar handleLightMode={handleLightMode} lightMode={lightMode} loginState={loginState} />
           {/* Hero Element */}
-
           <Routes>
             <Route
               path="/"
               element={
                 <React.Suspense fallback={<Loading />}>
-                  <p>ok home</p>
+       		    <div className="card h-full m-2 bg-base-300 shadow-xl">
+		      <p className="text-lg">It seems no ones here yet</p>
+		      <button className="btn btn-primary w-1/4">Invite People</button>
+		    </div>
+		    <Footer />
                 </React.Suspense>
               }
             />
@@ -92,7 +98,6 @@ function Home() {
               <span className="material-symbols-outlined">favorite</span>
             </button>
           </div>
-          <Footer />
         </div>
         <div className="drawer-side">
           <label htmlFor="my-drawer" className="drawer-overlay"></label>
@@ -106,7 +111,7 @@ function Home() {
           </ul>
         </div>
       </div>
-    </>
+    </div>
   );
 }
 
@@ -115,7 +120,7 @@ export default Home;
 function Navbar(props: { handleLightMode: () => void; lightMode: boolean; loginState: LoginState }) {
   return (
     <>
-      <div className="navbar max-h-6 sticky left-0 top-0 hidden md:flex shadow-xl">
+      <div className="navbar sticky top-0 left-0 max-h-6 md:flex hidden shadow-xl z-10">
         <div className="flex-none">
           <button className="btn btn-square">
             <label htmlFor="my-drawer" className="drawer-button">
@@ -197,7 +202,9 @@ function Navbar(props: { handleLightMode: () => void; lightMode: boolean; loginS
             <ul tabIndex={0} className="dropdown-content p-0 z-[1] menu shadow bg-neutral rounded-box">
               <li>
                 <button className=" btn btn-md btn-square place-content-center btn-ghost">
+		<Link to="/settings">
                   <span className="material-symbols-outlined">settings</span>
+		</Link>
                 </button>
                 <Link
                   to={props.loginState === 'users' ? '/familydashboard' : '/home'}

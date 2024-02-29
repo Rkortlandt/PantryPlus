@@ -14,6 +14,7 @@ import SignUpCoordinators from './pages/SignUpCoordinators';
 import ChooseSignUp from './pages/ChooseSignUp';
 import ApiTest from './pages/apiTest';
 import FamilyDashboard from './pages/FamilyDashboard';
+import Settings from './pages/Settings'; 
 import { isLoggedIn } from './contexts/pocketbase';
 import { useQuery, useMutation, useQueryClient, QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { LoginState, useGetLoginState } from './hooks/useGetLoginState';
@@ -23,7 +24,7 @@ function App() {
   //handle lightmode button click
   const [lightMode, setLightMode] = useState(true);
 
-  const handleLightMode = () => {
+const handleLightMode = () => {
     setLightMode(!lightMode);
     if (lightMode) {
       document.documentElement.setAttribute('data-theme', 'forest');
@@ -45,11 +46,12 @@ function App() {
     <>
       <QueryClientProvider client={queryClient}>
         <Routes>
-          <Route path="/" element={<LandingPage />}></Route>
-          <Route path="/chooseSignUp" element={<ChooseSignUp />}></Route>
-          <Route path="/signup" element={<SignUp />}></Route>
-          <Route path="/signup_coordinators" element={<SignUpCoordinators />}></Route>
-          <Route path="/login" element={<Login />}></Route>
+          <Route path="/" element={<LandingPage />}/>
+	  <Route path="/settings" element={<ProtectedElement protectedElement={<Settings />} setShowToast={setShowToast}/>}/>
+          <Route path="/chooseSignUp" element={<ChooseSignUp />}/>
+          <Route path="/signup" element={<SignUp />}/>
+          <Route path="/signup_coordinators" element={<SignUpCoordinators />}/>
+          <Route path="/login" element={<Login />}/>
           <Route
             path="/home/*"
             element={<ProtectedElement protectedElement={<Home />} setShowToast={setShowToast} />}

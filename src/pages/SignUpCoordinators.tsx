@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Link, Navigate, useNavigate } from 'react-router-dom';
 import Toast from '../components/toast';
-import { addCoordinator } from '../contexts/pocketbase';
+import { addCoordinator, createFamily } from '../contexts/pocketbase';
 
 export default function SignUpCoordinators() {
   const [username, setUsername] = useState('');
@@ -10,11 +10,12 @@ export default function SignUpCoordinators() {
   const [passwordConfirm, setPasswordConfirm] = useState('');
   const [name, setName] = useState('');
   const [familyName, setFamilyName] = useState('');
-  const [isFamilyNameValid, setIsFamilyNameValid] = useState(true);
+  const [isFamilyNameValid, setIsFamilyNameValid] = useState(false);
   const [isPasswordValid, setIsPasswordValid] = useState('not-clicked');
   const [isPasswordConfirmValid, setIsPasswordConfirmValid] = useState(true);
   const [isEmailValid, setIsEmailValid] = useState(true);
   const [showToast, setShowToast] = useState(false);
+  const [isPastStageOne, setIsPastStageOne] = useState(false);
 
   const navigate = useNavigate();
 
@@ -29,18 +30,23 @@ export default function SignUpCoordinators() {
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
+       setIsPastStageOne(true);  
+  };
+  const handleSubmit2 = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
     const error = await addCoordinator(username, email, password, passwordConfirm, familyName, name);
     if (error) {
       console.log(error);
       return setShowToast(true);
     } else {
-      navigate('/home');
+       navigate("/home");
     }
   };
 
   return (
-    <div className="flex flex-col items-center justify-center">
-      <div className="card card-body bg-base-200 flex flex-col m-6 items-center justify-center w-96">
+    
+    <div className="flex items-center justify-center content-center h-screen p-3">
+      {!isPastStageOne && <div className="card card-body bg-base-200 flex grow-0 flex-col items-center justify-center w-96">
         <h1 className="text-4xl max-sm:3xl font-bold">Sign Up</h1>
         <h1 className="text-3xl max-sm:2xl">Coordinators</h1>
         <form onSubmit={handleSubmit} className="flex flex-col items-center justify-center w-full">
@@ -120,15 +126,50 @@ export default function SignUpCoordinators() {
               }}
             />
           </div>
+          <input
+            type="text"
+            placeholder="Name (Optional)"
+            className="input input-bordered w-full p-2 my-2"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+          />
+          {isPasswordValid &&
+          isPasswordConfirmValid &&
+          isEmailValid &&
+          passwordConfirm.length != 0 &&
+          email.length != 0 &&
+          password.length != 0 ? (
+            <button type="submit" className="input input-primary w-full p-2 my-2">
+              Next
+            </button>
+          ) : (
+            <button type="submit" disabled className="input w-full p-2 my-2">
+              Next
+            </button>
+          )}
+        </form>
+        <p className="my-2">
+          Already have an account?{' '}
+          <Link to="/login" className=" text-primary">
+            Log In
+          </Link>
+        </p>
+      </div>
+      }
+      {isPastStageOne && <div className="card card-body bg-base-200 flex grow-0 flex-col items-center justify-center w-96 h-full">
+	  <h1 className="text-4xl max-sm:3xl font-bold">Sign Up</h1>
+          <h1 className="text-3xl max-sm:2xl">Coordinators</h1>
+	
+        <form onSubmit={handleSubmit2} className="flex flex-col grow-1 items-center justify-center w-full">
           <div
             className={`focus-within:tooltip-warning tooltip-error tooltip-right w-full ${
               isFamilyNameValid ? '' : 'tooltip tooltip-open'
             }`}
             data-tip="Must be 5-20 digits long"
           >
-            <input
+          <input
               type="text"
-              placeholder="Family Name (Required 5-20 characters)"
+              placeholder="Family Name"
               className={`input input-bordered w-full p-2 my-2 ${
                 isFamilyNameValid ? '' : 'focus:input-warning input-error'
               }`}
@@ -144,27 +185,16 @@ export default function SignUpCoordinators() {
               }}
             />
           </div>
-          <input
-            type="text"
-            placeholder="Name (Optional)"
-            className="input input-bordered w-full p-2 my-2"
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-          {isPasswordValid &&
-          isPasswordConfirmValid &&
-          isEmailValid &&
-          passwordConfirm.length != 0 &&
-          email.length != 0 &&
-          password.length != 0 ? (
+          {isFamilyNameValid? (
             <button type="submit" className="input input-primary w-full p-2 my-2">
-              Sign Up
+              Next
             </button>
           ) : (
             <button type="submit" disabled className="input w-full p-2 my-2">
-              Sign Up
+              Next
             </button>
           )}
+
         </form>
         <p className="my-2">
           Already have an account?{' '}
@@ -172,7 +202,7 @@ export default function SignUpCoordinators() {
             Log In
           </Link>
         </p>
-      </div>
+      </div>}
       {<Toast type="error" hidden={!showToast} message="Your username or password may already be in use." />}
     </div>
   );

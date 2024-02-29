@@ -40,26 +40,16 @@ export const addCoordinator = async (
     email,
     password,
     passwordConfirm,
+    familyCode: generateNewFamilyCode(),
+    familyCodeUpdated: new Date().toISOString().toString(),
     name,
     familyName,
   };
-
+  console.log(data);
   try {
-    const user = await pb.collection('coordinators').create(data);
+    await pb.collection('coordinators').create(data);
     try {
       await pb.collection('coordinators').authWithPassword(data.email, data.password);
-      try {
-        const familyData = await pb
-          .collection('familys')
-          .create({ familyName, familyMembers: [], familyCoordinator: user.id });
-        try {
-          await pb.collection('coordinators').update(`${user.id}`, { family: `${familyData.id}` });
-        } catch (error) {
-          return { error: error, message: 'failed to update link to family' };
-        }
-      } catch (error) {
-        return { error: error, message: 'failed to create family' };
-      }
     } catch (error) {
       return { error: error, message: 'failed to authenticate' };
     }
@@ -67,6 +57,37 @@ export const addCoordinator = async (
     return { error: error, message: 'failed to create a new account' };
   }
 };
+
+export const createFamilyRequest = async (familyId: string) => {
+  if (!isLoggedInAsCoordinator()) { 
+    return {error: "Not a coordinator", message: "Not a coordinator"};
+  }
+   
+  const data = {
+    "user": pb.authStore.model?.id,
+    "family": familyId,
+  }
+  try {
+    await pb.collection("familyRequests").create(data);
+  } catch (error) {
+    return {error: error, message: "Failed to create familyRequest"};
+  }
+}
+
+export const generateNewFamilyCode = ():string => {
+  const characters = 'abcdefghijklmnopqrstuvwxyz0123456789';
+  let result = '';
+  for (let i = 0; i < 6; i++) {
+    const randomIndex = Math.floor(Math.random() * characters.length);
+    result += characters.charAt(randomIndex);
+  }
+  return result;
+};
+
+
+//export const listFamilyRequests = async () => {
+  
+//}
 
 export const hasFamily = async () => {
   if (!pb.authStore.model) return false;
@@ -86,6 +107,10 @@ export const isLoggedIn = () => {
   return pb.authStore.isValid;
 };
 
-export const isLoggedInAsCoordinator = () => {
-  return pb.authStore.isValid;
+export const isLoggedInAsUser = ():boolean => {
+  return (pb.authStore.isValid && pb.authStore.model?.collectionName === "users");
+};
+
+export const isLoggedInAsCoordinator = ():boolean => {
+  return (pb.authStore.isValid && pb.authStore.model?.collectionName === "coordinators");
 };
