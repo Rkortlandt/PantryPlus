@@ -26,7 +26,7 @@ function Home() {
           {/* Page content */}
 
           {/* Settings bubble (Small Screens)*/}
-          <div className="join left-2 top-2 sticky md:hidden">
+          <div className="join left-0 top-0 p-2 sticky w-full md:w-auto md:hidden">
             <label htmlFor="my-drawer" className="join-item btn btn-md">
               <span className="material-symbols-outlined">add</span>
             </label>
@@ -42,7 +42,7 @@ function Home() {
               <span className="material-symbols-outlined">{!lightMode ? 'light_mode' : 'dark_mode'}</span>
             </button>
             <button
-              className="join-item btn btn-primary mx-2"
+              className="join-item btn btn-primary"
               onClick={() => {
                 logout();
                 return <Navigate to="/login" />;
@@ -59,9 +59,11 @@ function Home() {
               path="/"
               element={
                 <React.Suspense fallback={<Loading />}>
-       		    <div className="card h-full m-2 bg-base-300 shadow-xl">
-		      <p className="text-lg">It seems no ones here yet</p>
-		      <button className="btn btn-primary w-1/4">Invite People</button>
+       		    <div className="card h-full flex justify-center items-center m-2 bg-base-300 shadow-xl">
+		      <p className="text-2xl font-bold w-fit pb-8">It seems no ones here yet...</p>
+		      <Link to="/settings" className="w-auto">
+		      <button className="btn btn-primary px-10">Invite People</button>
+		      </Link>
 		    </div>
 		    <Footer />
                 </React.Suspense>
@@ -99,7 +101,7 @@ function Home() {
             </button>
           </div>
         </div>
-        <div className="drawer-side">
+        <div className="drawer-side z-10">
           <label htmlFor="my-drawer" className="drawer-overlay"></label>
           <ul className="menu p-4 w-80 h-full bg-base-200 text-base-content">
             <li>
@@ -120,7 +122,7 @@ export default Home;
 function Navbar(props: { handleLightMode: () => void; lightMode: boolean; loginState: LoginState }) {
   return (
     <>
-      <div className="navbar sticky top-0 left-0 max-h-6 md:flex hidden shadow-xl z-10">
+      <div className="navbar sticky top-0 left-0 max-h-6 md:flex hidden shadow-xl z-10 bg-base-100">
         <div className="flex-none">
           <button className="btn btn-square">
             <label htmlFor="my-drawer" className="drawer-button">
@@ -129,7 +131,7 @@ function Navbar(props: { handleLightMode: () => void; lightMode: boolean; loginS
           </button>
         </div>
         <div className="flex-none">
-          <a className="m-2 font-semibold btn-sm  btn normal-case text-xl btn-ghost">PantryPlus</a>
+          <a className="m-2 font-semibold btn-sm btn normal-case text-xl btn-ghost">PantryPlus</a>
         </div>
         <div className="flex-1"></div>
         <div className="">

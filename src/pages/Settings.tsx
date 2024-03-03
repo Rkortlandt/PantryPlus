@@ -7,7 +7,7 @@ import { Link, useNavigate } from 'react-router-dom';
 export default function Settings():JSX.Element {
   const navigate = useNavigate();
   return (
-    <>   
+    <div className="h-screen">   
     {/* Settings bubble (Small Screens)*/}
     <div className="join p-2">
       <button 
@@ -30,6 +30,6 @@ export default function Settings():JSX.Element {
       </button>
     </div>
       {isLoggedInAsCoordinator()? <CoordinatorSettings/>: <UserSettings/>}
-    </>
+    </div>
   );
 }

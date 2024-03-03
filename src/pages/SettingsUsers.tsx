@@ -1,7 +1,7 @@
 export default function UserSettings():JSX.Element {
   return (
     <>
-      <p>Testing User Settings</p> 
+      <div className="h-auto w-full bg-base-300">Testing User Settings</div> 
     </>
   );
 }
