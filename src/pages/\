@@ -75,14 +75,13 @@ export const createFamilyRequest = async (familyId: string) => {
 }
 
 export const findFamilyWithCode = async (familyCode: string) => {
-	const response = await pb.send(`/findfamily/${familyCode}`, {});
-
-	if (response.status === 404) {
-		// Throw a 404 Not Found error
-		throw new Error('Family not found');
-	}
-
-	return response;
+  try {
+	var family = await pb.send(`/findfamily/${familyCode}`, {});
+	console.log(family);
+	return await pb.send(`/findfamily/${familyCode}`, {});
+  } catch (error) {
+    return {error: error, message: "Failed to find family"};
+  }
 }
 
 export const generateNewFamilyCode = ():string => {
@@ -98,22 +97,13 @@ export const generateNewFamilyCode = ():string => {
   
 //}
 
-export const queryToFindFamily = async () => {
-	if (!pb.authStore.model) throw new Error("Not Signed In");
-	if (pb.authStore.model.family == "") {
-		try { 
-			var family: Record[] | Error = await pb.collection('coordinators').getFullList();
-			if (family.length = 0) {
-				return false;
-			} else {
-				return true;
-			}
-		} catch (err) {
-			return err;
-		}
-	} else {
-		return true;
-	}
+export const hasFamily = () => {
+  if (!pb.authStore.model) return false;
+  if (pb.authStore.model.familyRelation == "") {
+    return false;
+  } else {
+    return true;
+  }
 };
 
 export const logout = async () => {

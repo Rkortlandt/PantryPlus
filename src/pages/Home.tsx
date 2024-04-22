@@ -1,22 +1,36 @@
 import React from 'react';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Link, Navigate, Outlet, Route, Routes } from 'react-router-dom';
 import Loading from './Loading';
-import Footer from './Footer';
-import { logout } from '../contexts/pocketbase';
-import { createFamilyRequest } from '../contexts/pocketbase';
+import { logout, isLoggedInAsUser, isLoggedInAsCoordinator, pb } from '../contexts/pocketbase';
 import { LoginState, useGetLoginState } from '../hooks/useGetLoginState';
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import HomePage, { PendingRequest, AddRequest } from './HomePage';
+import HomePageCoordinators from './HomePageCoordinators';
 function Home() {
   //handle lightmode button click
+  const [hasFamily, setHasFamily] = useState(false);
   const [lightMode, setLightMode] = useState(true);
   const loginState: LoginState = useGetLoginState();
+
+  const { isLoading, isError, data, error} = useQuery({ queryKey: ['pendingRequest'], 
+	queryFn: () => {
+	  return pb.collection('familyRequests').getFirstListItem(`user.id="${pb.authStore.model?.id}"`, {
+    	expand: 'family',
+  	})
+  },
+	refetchOnWindowFocus: false,
+  	retry: 1
+  });
+  
+
   const handleLightMode = () => {
-    setLightMode(!lightMode);
-    if (lightMode) {
-      document.documentElement.setAttribute('data-theme', 'forest');
-    } else {
-      document.documentElement.setAttribute('data-theme', 'bumblebee');
-    }
+	setLightMode(!lightMode);
+	if (lightMode) {
+	  document.documentElement.setAttribute('data-theme', 'forest');
+	} else {
+	  document.documentElement.setAttribute('data-theme', 'bumblebee');
+	}
   };
   return (
     <div className="h-full w-full">
@@ -50,29 +64,24 @@ function Home() {
             >
               Logout
             </button>
-          </div>
-          {/* Nav (Large Screens) */}
-          <Navbar handleLightMode={handleLightMode} lightMode={lightMode} loginState={loginState} />
-          {/* Hero Element */}
-          <Routes>
-            <Route
-              path="/"
-              element={
-                <React.Suspense fallback={<Loading />}>
-       		    <div className="card h-full flex justify-center items-center m-2 bg-base-300 shadow-xl">
-		      <p className="text-2xl font-bold w-fit pb-8">It seems no ones here yet...</p>
-		      <Link to="/settings" className="w-auto">
-		      <button className="btn btn-primary px-10">Invite People</button>
-		      </Link>
-		    </div>
-		    <Footer />
-                </React.Suspense>
-              }
-            />
-            <Route
-              path="/lists"
-              element={
-                <React.Suspense fallback={<Loading />}>
+			</div>
+			{/* Nav (Large Screens) */}
+			<Navbar handleLightMode={handleLightMode} lightMode={lightMode} loginState={loginState} />
+			{/* Hero Element */}
+			<Routes>
+				<Route
+				path="/"
+				element={						
+					 <React.Suspense fallback={<Loading />}>
+						{!hasFamily && isLoggedInAsUser() && PendingRequest()? <PendingRequest/> : <AddRequest/>}
+						{/*hasFamily && isLoggedInAsUser() && <HomePage/>*/}
+						{/*isLoggedInAsCoordinator() && <HomePageCoordinators/>*/}
+					</React.Suspense>}
+				/>
+				<Route
+				path="/lists"
+				element={
+					<React.Suspense fallback={<Loading />}>
                   <Outlet />
                   <Loading />
                 </React.Suspense>
